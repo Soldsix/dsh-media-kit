@@ -1,0 +1,68 @@
+{
+  "name": "dsh-media-kit",
+  "version": "0.1.0-development",
+  "description": "Original media bytes, signature metadata and scoped attachment services for DSH plugins.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": "0.2.2-rc.1"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json",
+    "./dsh-attachments": {
+      "types": "./dist/dsh-attachments.d.ts",
+      "import": "./dist/dsh-attachments.js"
+    },
+    "./scoped-native": {
+      "types": "./dist/scoped-native.d.ts",
+      "import": "./dist/scoped-native.js"
+    }
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh-brand": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-attachment": "0.2.2-rc.1"
+  },
+  "dependencies": {
+    "file-type": "22.3.0",
+    "image-size": "2.1.0",
+    "zod": "4.6.6"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/node": "24.0.0",
+    "@deepseek-ai/dsh-attachment": "0.2.2-rc.1",
+    "@deepseek-ai/cordis": "~4.1.0",
+    "@deepseek-ai/dsh-attachment-local": "0.2.2-rc.1",
+    "sharp": "0.35.5",
+    "gifenc": "1.0.3"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepack": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Soldsix/dsh-media-kit.git"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-attachment": {
+      "optional": true
+    }
+  }
+}
