@@ -56,7 +56,7 @@ test('book close refuses new work immediately and joins active lease reads',asyn
 test('lease limits and malformed capacities fail without evicting source grants',async t=>{
  const {book,stored}=await setup(t,{maxLeases:1}),ref=book.register(a,stored),lease=book.acquire(a,ref)
  assert.throws(()=>book.acquire(a,ref),error=>error.code==='capacity');assert.equal(book.status().references,1);await lease.release()
- assert.throws(()=>resolveReferences({maxReferences:0,maxOriginalBytes:1,maxLeases:1}),error=>error.code==='invalid-data');assert.throws(()=>mediaReference('guessed'),error=>error.code==='invalid-data')
+ assert.throws(()=>resolveReferences({maxReferences:0,maxOriginalBytes:1,maxLeases:1,maxConcurrentReads:1}),error=>error.code==='invalid-data');assert.throws(()=>mediaReference('guessed'),error=>error.code==='invalid-data')
 })
 
 test('global read admission caps simultaneous exports even when they share one lease',async t=>{

@@ -54,6 +54,6 @@ test('cancellation before a native write starts never invokes the provider',asyn
  await assert.rejects(saveNativeOriginal(store,await original('one.png'),policy(),cancelled.signal),error=>error.code==='cancelled');assert.equal(calls,0)
 })
 test('storage budgets reject impossible relationships at configuration time',()=>{
- assert.throws(()=>resolveNativeStorage({chunkBytes:2048,maxReadBytes:1024,inspection}),error=>error.code==='invalid-data')
+ assert.throws(()=>resolveNativeStorage({chunkBytes:2048,maxReadBytes:1024,inspection:{...inspection,maxBytes:512,maxDetectorBuffer:512}}),error=>error.code==='invalid-data')
  assert.throws(()=>resolveNativeStorage({chunkBytes:16,maxReadBytes:1024,inspection}),error=>error.code==='invalid-data')
 })

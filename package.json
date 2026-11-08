@@ -30,7 +30,8 @@
     "dist/**/*.d.ts",
     "README.md",
     "README.zh.md",
-    "LICENSE"
+    "LICENSE",
+    "README.i18n.yaml"
   ],
   "peerDependencies": {
     "@deepseek-ai/dsh-brand": "0.2.2-rc.1",
@@ -54,7 +55,9 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test test/*.test.mjs",
-    "prepack": "npm run build"
+    "prepack": "npm run build && node scripts/prepare-pack.mjs",
+    "check": "npm test && node scripts/verify-package.mjs",
+    "test:consumer": "node scripts/test-consumer.mjs"
   },
   "repository": {
     "type": "git",
