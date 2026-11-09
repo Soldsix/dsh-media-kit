@@ -1,18 +1,33 @@
+---
+kind: package-library
+description: Preserve original media bytes and isolate conversation references for DSH plugins.
+---
+
 # dsh-media-kit
 
-Original media inspection, native verbatim attachment storage and scoped opaque references for DSH plugin consumers. This is an unpublished development library with no bundle, GUI, model client or application launcher. No production data is included.
+## Summary
 
-## Current implementation
+Original media inspection, native verbatim attachment storage and scoped opaque references for DSH plugin consumers. This independent library has no bundle, GUI, model client or application launcher. No production data is included.
+
+## Table of Contents
+
+- [Media inspection](#media-inspection)
+- [Native storage](#native-storage)
+- [Scoped references](#scoped-references)
+- [Example](#example)
+- [Verification and limitations](#verification-and-limitations)
+
+## Media inspection
 
 `inspectOriginal` copies caller bytes before asynchronous work, detects the binary signature, checks configured MIME/byte/dimension limits and computes SHA256 over the complete original. Filename extensions do not determine the format. Exported byte copies cannot mutate the retained original. Image header inspection is not a full decoder or malware check; no resizing, rotation or recompression occurs.
 
-Detection uses [file-type](https://github.com/sindresorhus/file-type); image headers use [image-size](https://codeberg.org/image-size/image-size). MIME allowlists contain explicit essences such as `audio/ogg`; codec parameters in detector results remain metadata. Valid UTF-8 plain text, HTML and JSON can be explicitly declared when no binary signature is present. Unknown binary formats, including codecs absent from the detector, are refused rather than mislabeled. Text files are never executed.
+Detection uses [file-type](https://github.com/sindresorhus/file-type); image headers use [image-size](https://codeberg.org/image-size/image-size). MIME allowlists contain explicit essences such as `audio/ogg`; codec parameters in detector results remain metadata. Valid UTF-8 plain text, HTML and JSON can be explicitly declared when no binary signature is present. The inspector refuses unknown binary formats. To retain unknown codecs, a Host can explicitly call `createUnclassifiedOriginal` with an `application/octet-stream` allowance; the result stays unclassified and makes no playback or format-verification claim. Text files are never executed.
 
 ## Native storage
 
 The optional `dsh-media-kit/dsh-attachments` entry uses the public DSH `saveFileStream` and `readFileStream` APIs. It stores every media type as a verbatim file rather than calling the image-normalization path. Canonical backing names allow equivalent byte inputs with different display names to share the native object; the display filename stays in separate metadata.
 
-`saveNativeOriginal` returns a versioned Host-only receipt. Native attachment identifiers stay opaque; the adapter does not assume they equal an unprefixed hash. `parseNativeOriginal` validates durable records. `readNativeOriginal` checks complete byte count, digest, signature and image metadata before returning an owned original. Changed bytes or inconsistent dimensions fail. The native backend owns files and retention; the library does not derive paths, open its files directly or delete them. Storage failures expose stable codes without backend paths or exception bodies.
+`saveNativeOriginal` returns a versioned Host-only receipt. Native attachment identifiers stay opaque; the adapter does not assume they equal an unprefixed hash. `parseNativeOriginal` validates durable records. `readNativeOriginal` checks complete byte count, digest, signature and image metadata before returning an owned original. Changed bytes or inconsistent dimensions fail. Explicitly unclassified originals only undergo byte and label validation; no codec is inferred. The native backend owns files and retention; the library does not derive paths, open its files directly or delete them. Storage failures expose stable codes without backend paths or exception bodies.
 
 ## Scoped references
 
@@ -55,8 +70,12 @@ await book.close()
 
 The snippet is a library integration sketch, not a standalone application. Supported DSH applications still launch through profiles. Peer APIs target DSH 0.2.2-rc.1; the native entries require its attachment capability. All capacities are supplied by the consumer rather than hidden deployment defaults.
 
-## Evidence and remaining work
+## Verification and limitations
 
 Local Node 24 tests cover signature/suffix disagreement, immutable original copies, text and WAV data, scoped grants, capacity and lease cleanup, real native attachment restart, integrity failures, 1080p/2K/4K PNG originals and a two-frame GIF. All original-byte comparisons are exact. The GIF and large images are generated fixtures, not user assets. No model requests or QQ messages are sent.
 
-Before an independent release: clean external consumer/type and artifact checks, Windows/Linux × Node 22/24 CI, installed native-profile integration and the offline-lab media adapter remain to be completed. This is not evidence of OCR accuracy, image identity recognition, voice playback, full video decoding or superiority over other projects. No real QQ, desktop or competitor runtime comparison has been performed.
+The clean consumer test installs the archive, verifies installed files and strict NodeNext declarations, and mounts the real native attachment service. This repository defines Windows/Linux × Node 22/24 CI; release notes record observed results. The consuming offline-lab plugin delivers its media adapter separately. This is not evidence of OCR accuracy, image identity recognition, voice playback, full video decoding or superiority over other projects. No real QQ, desktop or competitor runtime comparison has been performed.
+
+## Dev Note
+
+This library has no profile-install command; consuming plugins declare a dependency and choose the required public entries.

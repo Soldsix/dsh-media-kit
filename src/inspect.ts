@@ -6,7 +6,7 @@ import {imageSize} from 'image-size'
 import {z} from 'zod'
 import {sourceSchema} from './config.ts'
 import {MediaError} from './errors.ts'
-import type {InspectionRequest,InspectionSpec,OriginalDescriptor,OriginalMedia,MediaDigest,ImageDimensions} from './types.ts'
+import type {InspectionRequest,InspectionSpec,OriginalDescriptor,OriginalMedia,MediaDigest,ImageDimensions,UnclassifiedRequest} from './types.ts'
 const labels=z.strictObject({source:sourceSchema,fileName:z.string().min(1).max(255).refine(value=>!/[\\/:\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/u.test(value)&&value!=='.'&&value!=='..').optional(),textMime:z.enum(['text/plain','text/html','application/json']).optional()})
 class OwnedOriginal implements OriginalMedia{
  readonly #bytes:Uint8Array
@@ -65,4 +65,20 @@ export async function inspectOriginal(spec:InspectionSpec,request:InspectionRequ
  if(request.bytes.byteLength===0)throw new MediaError('invalid-data')
  if(request.bytes.byteLength>spec.maxBytes)throw new MediaError('too-large')
  return inspectOwnedOriginal(spec,{...request,bytes:new Uint8Array(request.bytes)},signal)
+}
+/**
+ * Preserve bytes whose format is unsupported or intentionally not inspected. No detector or decoder is called.
+ * @param spec - encoded-byte bounds and an explicit application/octet-stream allowance.
+ * @param request - caller-owned bytes and safe source labels; the provided filename remains a display label only.
+ * @param signal - archival admission cancellation.
+ * @returns an isolated unclassified original, never a verified image or audio container.
+ */
+export async function createUnclassifiedOriginal(spec:InspectionSpec,request:UnclassifiedRequest,signal:AbortSignal):Promise<OriginalMedia>{
+ cancelled(signal)
+ if(request.bytes.byteLength===0)throw new MediaError('invalid-data')
+ if(request.bytes.byteLength>spec.maxBytes)throw new MediaError('too-large')
+ if(!spec.allowedMimeTypes.has('application/octet-stream'))throw new MediaError('unsupported-type')
+ const parsed=labels.safeParse({source:request.source,...request.fileName===undefined?{}:{fileName:request.fileName}});if(!parsed.success)throw new MediaError('invalid-data')
+ const bytes=new Uint8Array(request.bytes),descriptor:OriginalDescriptor=Object.freeze({sha256:createHash('sha256').update(bytes).digest('hex') as MediaDigest,byteLength:bytes.byteLength,mime:'application/octet-stream',extension:'bin',fileName:parsed.data.fileName===undefined?'media.bin':parsed.data.fileName,detectedBy:'unclassified',source:Object.freeze({...parsed.data.source})})
+ return new OwnedOriginal(bytes,descriptor)
 }

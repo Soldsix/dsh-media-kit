@@ -29,7 +29,6 @@ async function run(argv){
  records.push({argv,code,signal,timedOut:timeout.aborted,stdout,stderr});await writeFile(join(attempt,'commands.json'),JSON.stringify(records,null,2)+'\n')
  if(failure)throw failure;assert.equal(code,0,stderr.slice(-1800));return stdout
 }
-const peers=Object.entries(manifest.peerDependencies).filter(([name])=>name!=='dsh-im-kit').map(([name,version])=>name+'@'+version)
 if(!resumed||args.includes('--reinstall'))await run([process.env.npm_execpath,'install','--ignore-scripts','--no-audit','--no-fund','--package-lock=false','--cache',join(root,'.npm-cache'),archives[0],'@types/node@24.0.0'])
 const installed=await verifyInstalledArchive(archives[0],join(area,'node_modules','dsh-media-kit'),join(attempt,'installed-files.json'))
 const consumer=join(attempt,'consumer.ts')

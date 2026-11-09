@@ -1,6 +1,6 @@
 {
   "name": "dsh-media-kit",
-  "version": "0.1.0-development",
+  "version": "0.1.0",
   "description": "Original media bytes, signature metadata and scoped attachment services for DSH plugins.",
   "type": "module",
   "license": "MIT",

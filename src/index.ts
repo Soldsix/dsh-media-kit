@@ -2,4 +2,4 @@
 export type * from './types.ts'
 export {MediaError} from './errors.ts'
 export {resolveInspection,mediaProvider,mediaSource} from './config.ts'
-export {inspectOriginal} from './inspect.ts'
+export {inspectOriginal,createUnclassifiedOriginal} from './inspect.ts'

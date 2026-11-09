@@ -6,7 +6,7 @@ import {AttachmentId,isAttachmentError,type AttachmentStore,type FileAttachmentR
 import {z} from 'zod'
 import {MediaError} from './errors.ts'
 import {sourceSchema,resolveInspection} from './config.ts'
-import {inspectOwnedOriginal} from './inspect.ts'
+import {inspectOwnedOriginal,createUnclassifiedOriginal} from './inspect.ts'
 import type {OriginalDescriptor,OriginalMedia,MediaDigest,InspectionConfig,InspectionSpec,InspectionRequest} from './types.ts'
 /** Only the official verbatim stream capability is required. */
 export type VerbatimAttachmentStore=Pick<AttachmentStore,'saveFileStream'|'readFileStream'>
@@ -18,7 +18,7 @@ export interface NativeStorageSpec extends Omit<NativeStorageConfig,'inspection'
 export interface NativeStoredOriginal{readonly format:'dsh-media-native-v1';readonly descriptor:OriginalDescriptor;readonly attachment:Readonly<FileAttachmentRef>}
 const positive=z.number().int().positive().safe(),hash=z.string().regex(/^[a-f0-9]{64}$/u)
 const fileName=z.string().min(1).max(255).refine(value=>!/[\\/:\u0000-\u001f\u007f]/u.test(value)&&value!=='.'&&value!=='..')
-const descriptorSchema=z.strictObject({sha256:hash.transform(value=>value as MediaDigest),byteLength:positive,mime:z.string().min(1).max(255).refine(value=>supportedMimeTypes.has(value)||['text/plain','text/html','application/json'].includes(value)),extension:z.string().regex(/^[a-z0-9]+$/u),fileName,detectedBy:z.enum(['signature','declared-text']),source:sourceSchema,image:z.strictObject({width:positive,height:positive,orientation:z.number().int().min(1).max(8).optional()}).optional()})
+const descriptorSchema=z.strictObject({sha256:hash.transform(value=>value as MediaDigest),byteLength:positive,mime:z.string().min(1).max(255).refine(value=>supportedMimeTypes.has(value)||['text/plain','text/html','application/json','application/octet-stream'].includes(value)),extension:z.string().regex(/^[a-z0-9]+$/u),fileName,detectedBy:z.enum(['signature','declared-text','unclassified']),source:sourceSchema,image:z.strictObject({width:positive,height:positive,orientation:z.number().int().min(1).max(8).optional()}).optional()})
 const receiptSchema=z.strictObject({format:z.literal('dsh-media-native-v1'),descriptor:descriptorSchema,attachment:z.strictObject({attachmentId:z.string().min(1).max(512).refine(value=>!/[\u0000-\u0020\u007f]/u.test(value)).transform(AttachmentId),name:fileName,bytes:positive})})
 /** @param value - raw deployment capacities. @returns explicit chunk and export bounds. */
 export function resolveNativeStorage(value:NativeStorageConfig):NativeStorageSpec{
@@ -35,7 +35,8 @@ export function parseNativeOriginal(value:unknown):NativeStoredOriginal{
  const parsed=receiptSchema.safeParse(value);if(!parsed.success)throw new MediaError('invalid-data')
  if(parsed.data.attachment.bytes!==parsed.data.descriptor.byteLength)throw new MediaError('integrity-failed')
  const d=parsed.data.descriptor
- if(d.mime.startsWith('image/')!==Boolean(d.image)||!d.fileName.endsWith('.'+d.extension)||d.detectedBy==='declared-text'&&!['text/plain','text/html','application/json'].includes(d.mime))throw new MediaError('invalid-data')
+ if(d.mime.startsWith('image/')!==Boolean(d.image)||d.detectedBy!=='unclassified'&&!d.fileName.endsWith('.'+d.extension)||d.detectedBy==='declared-text'&&!['text/plain','text/html','application/json'].includes(d.mime))throw new MediaError('invalid-data')
+ if(d.detectedBy==='unclassified'&&(d.mime!=='application/octet-stream'||d.extension!=='bin'||d.image!==undefined))throw new MediaError('invalid-data')
  const {image,...metadata}=parsed.data.descriptor
  const descriptor:OriginalDescriptor={...metadata,...image?{image:{width:image.width,height:image.height,...image.orientation===undefined?{}:{orientation:image.orientation}}}:{}}
  return immutable({...parsed.data,descriptor})
@@ -96,6 +97,7 @@ export async function readNativeOriginal(store:VerbatimAttachmentStore,stored:Na
   }
   cancelled(signal)
   if(total!==stored.descriptor.byteLength||hash.digest('hex')!==stored.descriptor.sha256)throw new MediaError('integrity-failed')
+  if(stored.descriptor.detectedBy==='unclassified')return createUnclassifiedOriginal(spec.inspection,{bytes,source:stored.descriptor.source,fileName:stored.descriptor.fileName},signal)
   let textMime:InspectionRequest['textMime']
   if(stored.descriptor.detectedBy==='declared-text'){const mime=stored.descriptor.mime;if(mime!=='text/plain'&&mime!=='text/html'&&mime!=='application/json')throw new MediaError('integrity-failed');textMime=mime}
   const original=await inspectOwnedOriginal(spec.inspection,{bytes,source:stored.descriptor.source,fileName:stored.descriptor.fileName,...textMime===undefined?{}:{textMime}},signal),actual=original.descriptor,expected=stored.descriptor

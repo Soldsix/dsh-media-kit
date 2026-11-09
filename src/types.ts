@@ -14,10 +14,12 @@ export interface InspectionConfig{readonly maxBytes:number;readonly maxDetectorB
 export interface InspectionSpec extends Omit<InspectionConfig,'allowedMimeTypes'>{readonly allowedMimeTypes:ReadonlySet<string>}
 /** Input labels never determine a binary signature. */
 export interface InspectionRequest{readonly bytes:Uint8Array;readonly source:MediaSource;readonly fileName?:string;readonly textMime?:'text/plain'|'text/html'|'application/json'}
+/** Explicit unclassified archival; no filename or content is promoted to a recognized media format. */
+export interface UnclassifiedRequest{readonly bytes:Uint8Array;readonly source:MediaSource;readonly fileName?:string}
 /** Header dimensions describe encoded pixels; no rotation, resizing or recompression is performed. */
 export interface ImageDimensions{readonly width:number;readonly height:number;readonly orientation?:number}
 /** Public metadata excludes the host filesystem and all raw bytes. */
-export interface OriginalDescriptor{readonly sha256:MediaDigest;readonly byteLength:number;readonly mime:string;readonly extension:string;readonly fileName:string;readonly detectedBy:'signature'|'declared-text';readonly source:MediaSource;readonly image?:ImageDimensions}
+export interface OriginalDescriptor{readonly sha256:MediaDigest;readonly byteLength:number;readonly mime:string;readonly extension:string;readonly fileName:string;readonly detectedBy:'signature'|'declared-text'|'unclassified';readonly source:MediaSource;readonly image?:ImageDimensions}
 /** An owned original whose internal bytes cannot be mutated by a caller. */
 export interface OriginalMedia{
  readonly descriptor:OriginalDescriptor

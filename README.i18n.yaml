@@ -2,21 +2,36 @@
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write README.md
+/:
+  en: cb3f91d54eee30e5
+  zh: cb3f91d54eee30e5
+/kind-package-library-description-preserve-original-media-bytes-and-isolate-conversation-references-for-dsh-plugins:
+  en: 30873c5d87ca4f70
+  zh: 75ec0a6f86715394
 /dsh-media-kit:
-  en: 64dfc3432723fc57
-  zh: 444b81b55289d022
-/dsh-media-kit/current-implementation:
-  en: 55ba10c883697f80
-  zh: b1fc8c0fe7f61803
+  en: 2716293d19c3f488
+  zh: 2716293d19c3f488
+/dsh-media-kit/summary:
+  en: 072670a7142aa8ba
+  zh: 7da9204aedc26c02
+/dsh-media-kit/table-of-contents:
+  en: c55b6ce4c35e118c
+  zh: 51c94d5d65262159
+/dsh-media-kit/media-inspection:
+  en: 816744d8e5aa51ae
+  zh: f980ebca738cada3
 /dsh-media-kit/native-storage:
-  en: 8f9273ca36db85eb
-  zh: 15bdea3b6602e1c2
+  en: 7b615e9ffc440043
+  zh: a301a176c4171d30
 /dsh-media-kit/scoped-references:
   en: 37d722b2e9438531
   zh: 6657165d0dc74689
 /dsh-media-kit/example:
   en: c30e5e2525c84943
   zh: 421ffd96c1c8a3f1
-/dsh-media-kit/evidence-and-remaining-work:
-  en: 1a73a6be998c3ca3
-  zh: dc24a334e50b3819
+/dsh-media-kit/verification-and-limitations:
+  en: be5e2b63398782f4
+  zh: a6b26f64949dd16c
+/dsh-media-kit/dev-note:
+  en: 83b062cfbe79a445
+  zh: 1f7e51cd618c593b
