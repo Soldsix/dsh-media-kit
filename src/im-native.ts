@@ -7,7 +7,7 @@ import {ScopedNativeMedia,mediaScope,mediaReference,type MediaGrant,type MediaSc
 import type {OriginalMedia} from './types.ts'
 import type {ImMediaProvider} from './im.ts'
 
-/** The owning plugin must durably append a grant before resolving; the provider never retries it. */
+/** The owning plugin durably appends before resolving and supports concurrent calls using serialized writes or transactions; the provider never retries. */
 export interface ImMediaJournal{
  /** @param grant - complete Host-only reference metadata. @param signal - import lifetime. @returns durable completion, without exposing the grant to a model. */
  append(grant:MediaGrant,signal:AbortSignal):Promise<void>

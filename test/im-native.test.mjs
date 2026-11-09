@@ -22,7 +22,7 @@ async function setup(t){const parent=resolve('.test-artifacts','im-native');awai
 function options(attachments,patch={}){return{account:account(),attachments,storage,references,journal:{async append(){}},restoredGrants:[],...patch}}
 test('native IM media preserves 1080p, 2K and 4K originals across multiple conversations and journal restore',async t=>{
  const {home,attachments}=await setup(t),grants={a:[],b:[]},files={a:join(home,'grants-a.jsonl'),b:join(home,'grants-b.jsonl')}
- const journal=key=>({async append(grant,abort){abort.throwIfAborted();const file=await open(files[key],'a');try{await file.writeFile(JSON.stringify(grant)+'\n');await file.sync()}finally{await file.close()}grants[key].push(structuredClone(grant))}})
+ const tails={a:Promise.resolve(),b:Promise.resolve()},journal=key=>({append(grant,abort){const task=tails[key].then(async()=>{abort.throwIfAborted();const file=await open(files[key],'a');try{await file.writeFile(JSON.stringify(grant)+'\n');await file.sync()}finally{await file.close()}grants[key].push(structuredClone(grant))});tails[key]=task.catch(()=>{});return task}})
  const runtime=new ImMediaRuntime(resolveImMedia({maxProviders:2,maxPendingPerProvider:16}));t.after(()=>runtime.close())
  for(const key of ['a','b'])runtime.register(new NativeImMediaProvider(options(attachments,{account:account(key),journal:journal(key)})))
  const dimensions=[[1920,1080],[2560,1440],[3840,2160]],inputs=[]
@@ -32,7 +32,7 @@ test('native IM media preserves 1080p, 2K and 4K originals across multiple conve
  for(const record of stored){const found=await runtime.read(record.destination,record.reference,signal());assert.deepEqual(found.copyBytes(),record.input.copyBytes());assert.deepEqual(found.descriptor.image,record.input.descriptor.image);assert.equal(found.descriptor.sha256,record.input.descriptor.sha256)}
  for(const record of stored.slice(1))await assert.rejects(runtime.read(stored[0].destination,record.reference,signal()),error=>error.code==='not-found')
  await runtime.close();const reopened=new ImMediaRuntime(resolveImMedia({maxProviders:2,maxPendingPerProvider:16}));t.after(()=>reopened.close())
- for(const key of ['a','b']){const retained=(await readFile(files[key],'utf8')).trim().split('\n').map(line=>JSON.parse(line));assert.deepEqual(retained,grants[key]);reopened.register(new NativeImMediaProvider(options(attachments,{account:account(key),journal:journal(key),restoredGrants:retained})))}
+ for(const key of ['a','b']){const retained=(await readFile(files[key],'utf8')).trim().split('\n').map(line=>JSON.parse(line));assert.deepEqual(retained,grants[key]);reopened.register(new NativeImMediaProvider(options(attachments,{account:account(key),journal:journal(key),restoredGrants:[...retained].reverse()})))}
  for(const record of stored)assert.deepEqual((await reopened.read(record.destination,record.reference,signal())).copyBytes(),record.input.copyBytes())
 })
 test('native providers reject foreign restored grants and direct foreign account access',async t=>{
