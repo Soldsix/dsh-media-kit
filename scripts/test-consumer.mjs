@@ -8,7 +8,7 @@ import ts from 'typescript'
 import {verifyInstalledArchive} from './verify-installed.mjs'
 const root=fileURLToPath(new URL('../',import.meta.url)),args=process.argv
 assert.ok(process.env.npm_execpath,'Run through npm run test:consumer')
-const manifest=JSON.parse(await readFile(join(root,'package.json'),'utf8'))
+const manifest=JSON.parse(await readFile(join(root,'package.json'),'utf8')),imIndex=args.indexOf('--im-kit-archive');assert.ok(imIndex>=0&&args[imIndex+1],'Pass --im-kit-archive PATH');const imArchive=await realpath(args[imIndex+1])
 const runs=join(root,'.test-artifacts','consumer');await mkdir(runs,{recursive:true})
 const resume=args.indexOf('--resume-run'),resumed=resume>=0
 const area=resumed?await realpath(args[resume+1]):await mkdtemp(join(runs,'run-'))
@@ -44,9 +44,11 @@ for(const path of inputFiles){
 }
 await copyFile(join(root,'scripts','root-consumer.mjs'),join(attempt,'root-runtime.mjs'))
 const rootRuntime=JSON.parse((await run([join(attempt,'root-runtime.mjs')])).trim());assert.equal(rootRuntime.passed,true)
-await run([process.env.npm_execpath,'install','--ignore-scripts','--no-audit','--no-fund','--package-lock=false','@deepseek-ai/dsh-attachment@0.2.2-rc.1','@deepseek-ai/dsh-attachment-local@0.2.2-rc.1','@deepseek-ai/cordis@~4.1.0'])
+await run([process.env.npm_execpath,'install','--ignore-scripts','--no-audit','--no-fund','--package-lock=false',imArchive,'@deepseek-ai/dsh-attachment@0.2.2-rc.1','@deepseek-ai/dsh-attachment-local@0.2.2-rc.1','@deepseek-ai/cordis@~4.1.0'])
+await verifyInstalledArchive(imArchive,join(area,'node_modules','dsh-im-kit'),join(attempt,'im-installed-files.json'))
 const nativeConsumer=join(attempt,'native-consumer.ts');await copyFile(join(root,'scripts','consumer-native-types.ts'),nativeConsumer)
-const nativeProgram=ts.createProgram([consumer,nativeConsumer],program.getCompilerOptions()),nativeDiagnostics=ts.getPreEmitDiagnostics(nativeProgram)
+const imConsumer=join(attempt,'im-consumer.ts');await copyFile(join(root,'scripts','consumer-im-types.ts'),imConsumer)
+const nativeProgram=ts.createProgram([consumer,nativeConsumer,imConsumer],program.getCompilerOptions()),nativeDiagnostics=ts.getPreEmitDiagnostics(nativeProgram)
 await writeFile(join(attempt,'native-type-diagnostics.txt'),ts.formatDiagnosticsWithColorAndContext(nativeDiagnostics,{getCurrentDirectory:()=>area,getCanonicalFileName:file=>file,getNewLine:()=> '\n'}))
 assert.equal(nativeDiagnostics.length,0,'Native consumer declaration check failed')
 const nativeInputs=nativeProgram.getSourceFiles().map(file=>resolve(file.fileName))

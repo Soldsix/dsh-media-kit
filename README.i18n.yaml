@@ -3,11 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write README.md
 /:
-  en: cb3f91d54eee30e5
-  zh: cb3f91d54eee30e5
-/kind-package-library-description-preserve-original-media-bytes-and-isolate-conversation-references-for-dsh-plugins:
-  en: 30873c5d87ca4f70
-  zh: 75ec0a6f86715394
+  en: 03a71ef09991d049
+  zh: 609fba8a0576c803
 /dsh-media-kit:
   en: 2716293d19c3f488
   zh: 2716293d19c3f488
@@ -15,8 +12,8 @@
   en: 072670a7142aa8ba
   zh: 7da9204aedc26c02
 /dsh-media-kit/table-of-contents:
-  en: c55b6ce4c35e118c
-  zh: 51c94d5d65262159
+  en: 9f133c46ad13a6c7
+  zh: a57c1370ee31e566
 /dsh-media-kit/media-inspection:
   en: 816744d8e5aa51ae
   zh: f980ebca738cada3
@@ -26,12 +23,15 @@
 /dsh-media-kit/scoped-references:
   en: 37d722b2e9438531
   zh: 6657165d0dc74689
+/dsh-media-kit/messaging-originals:
+  en: dd1cf9967bf5e716
+  zh: 03199c6f8f36f256
 /dsh-media-kit/example:
   en: c30e5e2525c84943
   zh: 421ffd96c1c8a3f1
 /dsh-media-kit/verification-and-limitations:
-  en: be5e2b63398782f4
-  zh: a6b26f64949dd16c
+  en: d63c0e3eed620b45
+  zh: 0ae08330834d698a
 /dsh-media-kit/dev-note:
   en: 83b062cfbe79a445
   zh: 1f7e51cd618c593b

@@ -1,6 +1,6 @@
 {
   "name": "dsh-media-kit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Original media bytes, signature metadata and scoped attachment services for DSH plugins.",
   "type": "module",
   "license": "MIT",
@@ -23,6 +23,18 @@
     "./scoped-native": {
       "types": "./dist/scoped-native.d.ts",
       "import": "./dist/scoped-native.js"
+    },
+    "./im": {
+      "types": "./dist/im.d.ts",
+      "import": "./dist/im.js"
+    },
+    "./im-native": {
+      "types": "./dist/im-native.d.ts",
+      "import": "./dist/im-native.js"
+    },
+    "./im-cordis": {
+      "types": "./dist/im-cordis.d.ts",
+      "import": "./dist/im-cordis.js"
     }
   },
   "files": [
@@ -35,7 +47,9 @@
   ],
   "peerDependencies": {
     "@deepseek-ai/dsh-brand": "0.2.2-rc.1",
-    "@deepseek-ai/dsh-attachment": "0.2.2-rc.1"
+    "@deepseek-ai/dsh-attachment": "0.2.2-rc.1",
+    "dsh-im-kit": "0.2.1",
+    "@deepseek-ai/cordis": "~4.1.0"
   },
   "dependencies": {
     "file-type": "22.3.0",
@@ -49,7 +63,8 @@
     "@deepseek-ai/cordis": "~4.1.0",
     "@deepseek-ai/dsh-attachment-local": "0.2.2-rc.1",
     "sharp": "0.35.5",
-    "gifenc": "1.0.3"
+    "gifenc": "1.0.3",
+    "dsh-im-kit": "https://github.com/Soldsix/dsh-im-kit/releases/download/v0.2.1/dsh-im-kit-0.2.1.tgz"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -65,6 +80,12 @@
   },
   "peerDependenciesMeta": {
     "@deepseek-ai/dsh-attachment": {
+      "optional": true
+    },
+    "dsh-im-kit": {
+      "optional": true
+    },
+    "@deepseek-ai/cordis": {
       "optional": true
     }
   }

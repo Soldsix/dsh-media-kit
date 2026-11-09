@@ -14,6 +14,7 @@ Original media inspection, native verbatim attachment storage and scoped opaque 
 - [Media inspection](#media-inspection)
 - [Native storage](#native-storage)
 - [Scoped references](#scoped-references)
+- [Messaging originals](#messaging-originals)
 - [Example](#example)
 - [Verification and limitations](#verification-and-limitations)
 
@@ -36,6 +37,16 @@ The optional `dsh-media-kit/scoped-native` entry provides `ScopedNativeMedia`. T
 Acquire a lease before reading. Revocation refuses leased references. Release cancels and joins only its own reads; close stops admission and joins all leased reads before clearing the in-memory index. It does not delete original attachments. Logical byte counts are not a quota on the shared backend's entire disk usage.
 
 The book does not own a metadata database. The consumer must persist `exportGrant` in its own owner journal before exposing a reference outside the process, then restore trusted records after restart. `restore` is not a model or ordinary-member operation. Validate request identity and output disclosure in the consuming plugin. Model-visible handles and metadata must be recorded in that plugin's DSH session events. This library cannot sandbox malicious Host code or privileged filesystem users.
+
+## Messaging originals
+
+The optional `dsh-media-kit/im` entry defines `ImMediaRuntime` and its account-bound provider API. Its explicit provider and pending-operation capacities reject excess work without queueing. It routes only by the complete authenticated account; the provider additionally binds the conversation. Cancellation suppresses late successful results. Unregister and close abort and join admitted work; unexpected provider failures expose only a stable error code, with no retries. Importing the library creates no runtime or provider.
+
+`dsh-media-kit/im-native` provides `NativeImMediaProvider` over the native original store and scoped reference book. The owning plugin supplies an account, resolved storage/reference policies, a journal writer and previously retained grants. A handle is returned only after its grant is appended. Restored records must contain the exact canonical account/conversation scope; foreign or malformed records fail construction. Group and private scopes remain distinct even for the same peer ID.
+
+The consumer must persist and protect the journal, record any model-visible metadata in Session events and enforce permission to send an original elsewhere. Failed or cancelled imports can retain native bytes and unreturned reference metadata, including when a journal append has an uncertain result. The adapter neither retries nor deletes this data. Native storage owns retention, and logical reference quotas are not a bound on its complete disk use.
+
+These entries require the separately installed `dsh-im-kit` 0.2.1 peer; the native entry also requires DSH attachment APIs. The type-only `dsh-media-kit/im-cordis` entry declares `ctx.imMedia` when a provider plugin contributes it through Cordis effects. Root media inspection requires none of these optional entries. No media provider is enabled automatically.
 
 ## Example
 
@@ -72,9 +83,9 @@ The snippet is a library integration sketch, not a standalone application. Suppo
 
 ## Verification and limitations
 
-Local Node 24 tests cover signature/suffix disagreement, immutable original copies, text and WAV data, scoped grants, capacity and lease cleanup, real native attachment restart, integrity failures, 1080p/2K/4K PNG originals and a two-frame GIF. All original-byte comparisons are exact. The GIF and large images are generated fixtures, not user assets. No model requests or QQ messages are sent.
+Local Node 22.19 and Node 24 tests cover signature/suffix disagreement, immutable original copies, text and WAV data, scoped grants, capacity and lease cleanup, real native attachment restart, integrity failures, 1080p/2K/4K PNG originals and a two-frame GIF. Messaging-provider tests additionally cover exact account/conversation binding, durable grant restore, native multi-conversation imports, cancellation during journal retention and shutdown settlement. All original-byte comparisons are exact. The GIF and large images are generated fixtures, not user assets. No model requests or QQ messages are sent.
 
-The clean consumer test installs the archive, verifies installed files and strict NodeNext declarations, and mounts the real native attachment service. This repository defines Windows/Linux × Node 22/24 CI; release notes record observed results. The consuming offline-lab plugin delivers its media adapter separately. This is not evidence of OCR accuracy, image identity recognition, voice playback, full video decoding or superiority over other projects. No real QQ, desktop or competitor runtime comparison has been performed.
+Run `npm run test:consumer -- --im-kit-archive <dsh-im-kit-0.2.1.tgz>` to install the archive, verify installed files and strict NodeNext declarations, and mount the real native attachment service. This repository defines Windows/Linux × Node 22/24 CI; release notes record observed results. The consuming offline-lab plugin delivers its media adapter separately. This is not evidence of OCR accuracy, image identity recognition, voice playback, full video decoding or superiority over other projects. No real QQ, desktop or competitor runtime comparison has been performed.
 
 ## Dev Note
 

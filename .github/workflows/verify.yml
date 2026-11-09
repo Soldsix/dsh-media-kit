@@ -23,4 +23,6 @@ jobs:
       - run: npm run check
       - run: npm pack --pack-destination artifacts
       - if: matrix.node == '24.x'
-        run: npm run test:consumer
+        run: node scripts/release-inputs.mjs
+      - if: matrix.node == '24.x'
+        run: npm run test:consumer -- --im-kit-archive .test-artifacts/release-inputs/dsh-im-kit-0.2.1.tgz
