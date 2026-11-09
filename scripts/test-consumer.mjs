@@ -17,7 +17,7 @@ const attempt=await mkdtemp(join(area,'attempt-')),archives=[]
 for(const path of[join(root,'artifacts',manifest.name+'-'+manifest.version+'.tgz')]){const target=join(attempt,basename(path));await copyFile(path,target);archives.push(target)}
 if(!resumed)await writeFile(join(area,'package.json'),JSON.stringify({name:'isolated-media-consumer',private:true,type:'module',overrides:manifest.overrides},null,2)+'\n')
 const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>!/KEY|SECRET|TOKEN|PASSWORD/i.test(key)&&key.toUpperCase()!=='PATH'))
-Object.assign(env,{PATH:join(root,'node_modules','.bin')+delimiter+(process.env.PATH??process.env.Path??''),DSH_PRIMARY_RUNTIME:''})
+Object.assign(env,{PATH:join(root,'node_modules','.bin')+delimiter+(process.env.PATH??process.env.Path??''),DSH_PRIMARY_RUNTIME:'',NPM_CONFIG_CACHE:join(root,'.npm-cache')})
 await mkdir(join(attempt,'temp'),{recursive:true});Object.assign(env,{TEMP:join(attempt,'temp'),TMP:join(attempt,'temp')})
 const records=[]
 async function run(argv){
